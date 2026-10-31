@@ -1,0 +1,34 @@
+
+services:
+  app:
+    build: .
+    container_name: tufu-movie-api
+    ports:
+      - "8099:8099"
+    environment:
+      DB_URL: jdbc:postgresql://postgres:5432/tufu_movie_db
+      DB_USERNAME: tufu
+      DB_PASSWORD: tufu505535
+    depends_on:
+      postgres:
+        condition: service_healthy
+
+  postgres:
+    image: postgres:17
+    container_name: tufu-movie-db
+    environment:
+      POSTGRES_DB: tufu_movie_db
+      POSTGRES_USER: tufu
+      POSTGRES_PASSWORD: tufu505535
+    ports:
+      - "5435:5432"
+    volumes:
+      - movie_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U tufu -d tufu_movie_db"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+volumes:
+  movie_data:
